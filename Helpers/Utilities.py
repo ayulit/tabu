@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import math, random
+import networkx as nx
+import sys
 
 # Objective function that evaluates the cost
 def basinFunction(vector):
@@ -121,7 +123,22 @@ def stochasticTwoOptWithEdges(perm):
     return result, [[perm[p1-1],perm[p1]],[perm[p2-1],perm[p2]]]
 
 # Function that creates a random permutation from an initial permutation by shuffling the elements in to a random order
-def constructInitialSolution(initPerm):
+def constructInitialSolution(G):
+
+    print "nodes=",nx.Graph.number_of_nodes(G)
+
+    mst = nx.minimum_spanning_edges(G,data=True) # a generator of MST edges
+    edgelist=list(mst) # make a list of the edges
+    print(sorted(edgelist))
+
+
+
+
+
+    sys.exit("constructInitialSolution")
+
+
+
     #Randomize the initial permutation
     permutation = initPerm[:] # make a copy of the initial permutation
     size = len(permutation)

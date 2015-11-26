@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import sys
+
 from Helpers.Utilities import constructInitialSolution, tourCost, stochasticTwoOptWithEdges
 
 # Function that returns a best candidate, sorting by cost
@@ -46,18 +48,20 @@ def generateCandidates(best, tabuList, points):
     return result # возвращает решение
 
 # главная функция алгоритма
-# points - данные графа
-def search(points, maxIterations, maxTabu, maxCandidates):
+# G - граф
+def search(G, maxIterations, maxTabu, maxCandidates):
 	# 1. конструирование начального решения
+
+
+
+
 
     # construct a random tour
     best ={}
-    best["permutation"] = constructInitialSolution(points) # начальное решение
-    
-    print len(points),len(best["permutation"])
-    
-    print best["permutation"]
-    
+    best["permutation"] = constructInitialSolution(G) # начальное решение
+
+    sys.exit("search")
+
     best["cost"] = tourCost(best["permutation"]) # ц.ф.
 
 	# 2. пустой табу-лист
@@ -77,7 +81,7 @@ def search(points, maxIterations, maxTabu, maxCandidates):
         # 5. Ищем кандидатов, используя табуирование (даелаем мувы)
         for index in range(0,maxCandidates):
         	# заполняем список решениями
-            candidates.append(generateCandidates(best, tabuList, points))
+            candidates.append(generateCandidates(best, tabuList, G))
             
             
         # Locate the best candidate

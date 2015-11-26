@@ -125,12 +125,16 @@ def stochasticTwoOptWithEdges(perm):
 # Function that creates a random permutation from an initial permutation by shuffling the elements in to a random order
 def constructInitialSolution(G):
 
+
     print "nodes=",nx.Graph.number_of_nodes(G)
+    print "edges=",nx.Graph.number_of_edges(G)
 
-    mst = nx.minimum_spanning_edges(G,data=True) # a generator of MST edges
-    edgelist=list(mst) # make a list of the edges
-    print(sorted(edgelist))
+    edgelist = G.edges(data='weight')  # make a list of the edges with weights
+    edgelist.sort(key=lambda x: x[2])  # sort edges by weight value
+    print "edges still=",len(edgelist)
 
+    for i in xrange(0,len(edgelist)):
+        print i,edgelist[i]
 
 
 

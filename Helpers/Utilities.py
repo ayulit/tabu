@@ -3,6 +3,7 @@
 import math, random
 import networkx as nx
 import sys
+import copy
 
 # Objective function that evaluates the cost
 def basinFunction(vector):
@@ -125,21 +126,53 @@ def stochasticTwoOptWithEdges(perm):
 # Function that creates a random permutation from an initial permutation by shuffling the elements in to a random order
 def constructInitialSolution(G):
 
+    FGlist = [] # list of edges of k-tree
 
-    print "nodes=",nx.Graph.number_of_nodes(G)
-    print "edges=",nx.Graph.number_of_edges(G)
+    #print "nodes=",nx.Graph.number_of_nodes(G)
+    #print "edges=",nx.Graph.number_of_edges(G)
 
     edgelist = G.edges(data='weight')  # make a list of the edges with weights
-    edgelist.sort(key=lambda x: x[2])  # sort edges by weight value
-    print "edges still=",len(edgelist)
-
-    for i in xrange(0,len(edgelist)):
-        print i,edgelist[i]
 
 
+    prevEdgeW = -1
+
+    for i in xrange(0,4):
+
+        edgelist.sort(key=lambda x: x[2])  # sort edges by weight value
+
+        currentEdgeW = copy.deepcopy(edgelist[0]) # edge with smallest weight in the graph
+        print "i=",i,"currentEdgeW=",currentEdgeW
+
+        FGlist.append(currentEdgeW)  # append to list
+        currentEdge = [currentEdgeW[j] for j in xrange(0,2)] # remove weight
+
+        edgelist = G.edges(currentEdge,data='weight') # neighbors of current edge include itself
+
+        print " i=",i,"edgelist=",edgelist
+
+        edgelist.remove(currentEdgeW) # remove itself
+        if prevEdgeW != -1:
+            edgelist.remove(prevEdgeW) # remove previous
+
+        print " i=",i,"edgelist=",edgelist
+
+        prevEdgeW = currentEdgeW
+
+
+    #currentEdgeW = edgelist[0] # edge with smallest weight
+    #FGlist.append(currentEdgeW)  # append to list
+    #currentEdge =  [currentEdgeW[0],currentEdgeW[1]] # remove weight
+
+    print FGlist
 
 
     sys.exit("constructInitialSolution")
+
+    FG=nx.Graph() # object k tree
+    FG.add_weighted_edges_from(FGlist) # constructing initial tree
+
+
+
 
 
 

@@ -123,24 +123,108 @@ def stochasticTwoOptWithEdges(perm):
     
     return result, [[perm[p1-1],perm[p1]],[perm[p2-1],perm[p2]]]
 
+
+#####################################################
+
+# возвращает смежное ребро с минимальным весом
+# neighbors - список соседних вершин
+# node - текущая вершина
+def neighbourEdgeWithMinWeight(G,neighbors,node):
+
+    minWeight = G[node][neighbors[0]]['weight'] # минимальный вес
+    minNeighbourNode = neighbors[0] # первая соседняя вершина
+
+    if len(neighbors) > 1: # если соседних вершин больше одной
+        # запускаем процедуру поиска минимума
+        for i in xrange(1,len(neighbors)):
+            if G[node][neighbors[i]]['weight'] < minWeight:
+                minWeight = G[node][neighbors[i]]['weight']
+                # соседняя врешина, образующая ребро минимального веса
+                minNeighbourNode = neighbors[i]
+
+
+    minNeighbourEdgeW = (node, minNeighbourNode, minWeight)
+
+    return minNeighbourEdgeW
+
+# возвращает ребро с минимальным весом из 2-х
+def edgeWithMinWeightFrom2(edgeA,edgeB):
+    if edgeA[2] < edgeB[2]:
+        return edgeA
+    else:
+        return edgeB
+
+
+
+#####################################################
+
+
 # Function that creates a random permutation from an initial permutation by shuffling the elements in to a random order
 def constructInitialSolution(G):
+
+    T = nx.Graph()
 
     FGlist = [] # list of edges of k-tree
 
     #print "nodes=",nx.Graph.number_of_nodes(G)
     #print "edges=",nx.Graph.number_of_edges(G)
 
-    edgelist = G.edges(data='weight')  # make a list of the edges with weights
+    candidates = G.edges(data='weight')  # make a list of the edges with weights
+
+    # INIT
+
+    # step 1
+    selection = min(candidates, key = lambda x:x[2]) # ребро с минимальным весом в графе
+    #FGlist.append(selection)  # добавялем минимальное ребро в список
+
+    T.add_edge(selection[0],selection[1],weight=selection[2]) # добавялем минимальное ребро в дерево
+
+    nodeA = selection[0] # его вершина A (условимся что A < B)
+    nodeB = selection[1] # его вершина B
+
+    neighborsA = G.neighbors(nodeA) # вершины смежные к A
+    neighborsB = G.neighbors(nodeB) # вершины смежные к B
+    neighborsA.remove(nodeB) # вершины смежные к A исключая B
+    neighborsB.remove(nodeA) # вершины смежные к B исключая A
+
+    # step2
+    # ищем ребра с минимальными весам для всех смежных узлов
+    minNeighbourEdgeA = neighbourEdgeWithMinWeight(G,neighborsA,nodeA) # for node A
+    minNeighbourEdgeB = neighbourEdgeWithMinWeight(G,neighborsB,nodeB) # for node B
+
+    candidates = []
+    # добавляем ребра в список кандидатов
+    candidates.append(minNeighbourEdgeA)
+    candidates.append(minNeighbourEdgeB)
+
+    # выбираем минимальное ребро из списка кандидатов
+    selection = min(candidates, key = lambda x:x[2]) # ребро с минимальным весом в графе
+    candidates.remove(selection)
+
+
+
+    FGlist.append(selection)  # добавялем минимальное ребро в список
+
+    for i in xrange(0,2):
+        if selection[i] != nodeA and selection[i] != nodeB:
+            node = selection[i]
+
+    print "node =",node
+
+
+    print FGlist
+
+
+
+
+    sys.exit("constructInitialSolution")
+
 
 
     prevEdgeW = -1
 
     for i in xrange(0,4):
 
-        edgelist.sort(key=lambda x: x[2])  # sort edges by weight value
-
-        currentEdgeW = copy.deepcopy(edgelist[0]) # edge with smallest weight in the graph
         print "i=",i,"currentEdgeW=",currentEdgeW
 
         FGlist.append(currentEdgeW)  # append to list
@@ -166,7 +250,7 @@ def constructInitialSolution(G):
     print FGlist
 
 
-    sys.exit("constructInitialSolution")
+
 
     FG=nx.Graph() # object k tree
     FG.add_weighted_edges_from(FGlist) # constructing initial tree

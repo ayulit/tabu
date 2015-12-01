@@ -36,13 +36,13 @@ class SearchTests(unittest.TestCase):
         # Use Berlin52 instance of TSPLIB
 
         # Algorithm Configuration
-        maxIterations = 100 # итераций главного цикла (число лок. оптимумов)
+        maxIterations = 10 # итераций главного цикла (число лок. оптимумов)
         maxTabuCount = 15
         maxCandidates = 50 # итераций поиска лок. оптимума
         k = 4 # количество ребер в искомом дереве
 
         # Execute the algorithm
-        result = search(self.TSPLIB, maxIterations, maxTabuCount, maxCandidates,k)
+        result = search(self.TSPLIB, maxIterations, maxTabuCount, maxCandidates, k)
         
         # 7542 - результат для проверки
         tspResult = TSPResult(7542, "Tabu Search Results")

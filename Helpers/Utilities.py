@@ -44,22 +44,9 @@ def euclideanDistance(v1, v2):
     
     return math.sqrt(sum)
 
-# Function that evaluates the total length of a path
-def tourCost(perm):
-    # Here tour cost refers to the sum of the euclidean distance between consecutive points starting from first element
-    totalDistance =0.0
-    size = len(perm)
-    for index in range(size):
-        # select the consecutive point for calculating the segment length
-        if index == size-1 : 
-            # This is because in order to complete the 'tour' we need to reach the starting point
-            point2 = perm[0] 
-        else: # select the next point
-            point2 = perm[index+1]
-            
-        totalDistance +=  euclideanDistance(perm[index], point2)
-    
-    return totalDistance    
+# Целевая функция
+def tourCost(T):
+    return T.size(weight='weight')
 
 # Function that deletes two edges and reverses the sequence in between the deleted edges
 def stochasticTwoOpt(perm):

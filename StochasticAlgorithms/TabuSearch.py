@@ -50,18 +50,13 @@ def generateCandidates(best, tabuList, points):
 # главная функция алгоритма
 # G - граф
 def search(G, maxIterations, maxTabu, maxCandidates, k):
+
 	# 1. конструирование начального решения
-
-
-    # construct a random tour
     best ={}
     best["permutation"] = constructInitialSolution(G,k) # начальное решение
-
-    print "T=",best["permutation"].edges(data='weight')
+    best["cost"] = tourCost(best["permutation"])  # ц.ф.
 
     sys.exit("search")
-
-    best["cost"] = tourCost(best["permutation"]) # ц.ф.
 
 	# 2. пустой табу-лист
     tabuList =[] 

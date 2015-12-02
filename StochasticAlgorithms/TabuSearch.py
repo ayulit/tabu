@@ -2,7 +2,7 @@
 
 import sys
 
-from Helpers.Utilities import constructInitialSolution, tourCost, stochasticTwoOptWithEdges
+from Helpers.Utilities import constructInitialSolution, tourCost, stochasticTwoOptWithEdges, blackBox
 
 # Function that returns a best candidate, sorting by cost
 def locateBestCandidate(candidates):
@@ -11,9 +11,13 @@ def locateBestCandidate(candidates):
     return best, edges 
 
 # есть ли решение в табу-списке        
-def isTabu(perm, tabuList):
+def isTabu(T, tabuList):
     result = False
-    size = len(perm) # длина решения
+    size = len(T) # длина решения
+
+    print "size=", size
+
+    sys.exit("isTabu")
 
     # цикл по элементам решения
     for index, edge in enumerate(perm): 		
@@ -30,22 +34,23 @@ def isTabu(perm, tabuList):
     return result    
 
 # Move: формирует 1 решение в окрестности начального решения best
-# points - данные графа
-def generateCandidates(best, tabuList, points):
-    permutation, edges, result = None, None, {}
+def generateCandidates(best, tabuList, G):
+    move, edges, result = None, None, {}
     
     # собственно move
-    while permutation == None or isTabu(best["permutation"], tabuList):
-        permutation, edges = stochasticTwoOptWithEdges(best["permutation"])
+    while move == None or isTabu(best["move"], tabuList):
+        # move, edges = stochasticTwoOptWithEdges(best["move"])
+        move, edges = blackBox(best["move"],G)
+        sys.exit("generateCandidates")
         
     candidate ={}    
-    candidate["permutation"] = permutation
-    candidate["cost"] = tourCost(candidate["permutation"])
+    candidate["move"] = move
+    candidate["cost"] = tourCost(candidate["move"])
     
     result["candidate"] = candidate
     result["edges"] = edges
     
-    return result # возвращает решение
+    return result  # возвращает решение
 
 # главная функция алгоритма
 # G - граф
@@ -53,10 +58,10 @@ def search(G, maxIterations, maxTabu, maxCandidates, k):
 
 	# 1. конструирование начального решения
     best ={}
-    best["permutation"] = constructInitialSolution(G,k) # начальное решение
-    best["cost"] = tourCost(best["permutation"])  # ц.ф.
+    best["move"] = constructInitialSolution(G,k) # начальное решение
+    best["cost"] = tourCost(best["move"])  # ц.ф.
 
-    sys.exit("search")
+
 
 	# 2. пустой табу-лист
     tabuList =[] 
@@ -64,7 +69,7 @@ def search(G, maxIterations, maxTabu, maxCandidates, k):
     # 3. главный цикл алгоритма на убывание
     # StopCondition: maxIterations = 0, maxIterations = 100 в начале
     # таким образом имеем 100 итераций - 100 локальных оптимумов
-    while maxIterations>0:
+    while maxIterations > 0:
         
         # 4. пустой список кандидатов              
         candidates = []
@@ -73,9 +78,10 @@ def search(G, maxIterations, maxTabu, maxCandidates, k):
         # Use Tabu list to not revisit previous rewired edges
         
         # 5. Ищем кандидатов, используя табуирование (даелаем мувы)
-        for index in range(0,maxCandidates):
-        	# заполняем список решениями
+        for index in range(0, maxCandidates):
+        	# заполняем список длиной maxCandidates решениями
             candidates.append(generateCandidates(best, tabuList, G))
+            sys.exit("search")
             
             
         # Locate the best candidate
@@ -93,7 +99,7 @@ def search(G, maxIterations, maxTabu, maxCandidates, k):
                     
         maxIterations -=1
         
-    return best
+    return best  # алгоритм tabu search возвращает результат
     
 
 

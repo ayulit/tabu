@@ -36,9 +36,9 @@ class SearchTests(unittest.TestCase):
         # Use Berlin52 instance of TSPLIB
 
         # Algorithm Configuration
-        maxIterations = 10 # итераций главного цикла (число лок. оптимумов)
+        maxIterations = 10  # итераций главного цикла (число лок. оптимумов)
         maxTabuCount = 15
-        maxCandidates = 50 # итераций поиска лок. оптимума
+        maxCandidates = 10  # итераций поиска лок. оптимума
         k = 4 # количество ребер в искомом дереве
 
         # Execute the algorithm

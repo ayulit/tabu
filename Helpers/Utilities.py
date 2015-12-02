@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import math, random
+import math,random
 import networkx as nx
 import sys
 import copy
@@ -78,7 +78,7 @@ def stochasticTwoOpt(perm):
     
     return result
 
-# реализация мува
+# реализация мува для TSP
 def stochasticTwoOptWithEdges(perm):
     result = perm[:] # сделаем копию решения
     size = len(result)
@@ -113,6 +113,81 @@ def stochasticTwoOptWithEdges(perm):
 
 #####################################################
 
+def isTree(G):
+
+    if len(G) == 0:
+        raise nx.exception.NetworkXPointlessConcept('G has no nodes.')
+
+    print "\nG.edges()=",G.edges()
+    print "G.nodes()=",G.nodes()
+    print "number_of_edges=",G.number_of_edges()
+    print "len(G)=",len(G)
+    print "number_of_nodes=",G.number_of_nodes()
+
+    # A connected graph with no cycles has n-1 edges.
+    if G.number_of_edges() != len(G) - 1:
+        print "isTree-0"
+        return False
+
+    if G.is_directed():
+        print "isTree-1"
+        is_connected = nx.is_weakly_connected
+    else:
+        print "isTree-2"
+        is_connected = nx.is_connected
+
+    return is_connected(G)
+
+# реализация мува для k-Tree
+def blackBox(T,G):
+
+
+    k = T.number_of_edges()
+
+    for i in xrange(0, k):
+        H = T.copy() # сделаем копию решения
+        e = H.edges(data='weight')[i] # берем ребро, которое хотим удалить
+
+        extNode = -1
+        # если одна из вершин ребра внешняя - запомним ее
+        if H.degree(e[0]) == 1:
+            extNode = e[0]
+        elif H.degree(e[1]) == 1:
+            extNode = e[1]
+
+        drop = e[:2]
+        H.remove_edge(*drop)  # удаляем ребро
+        if extNode != -1: # если одна из вершин ребра внешняя
+            H.remove_node(extNode) # удаляем ее
+
+        # теперь нужно добавить одно ребро из G
+        addCandidates = []
+        for node in H.nodes(): # цикл по нодам оставшегося графа
+            nodeNeighbors = G.neighbors(node) # вершины смежные к node
+
+            # ищем ребро с минимальными весом для всех смежных узлов
+            addCan = addCandidate(G,nodeNeighbors,node,H,drop)
+            if addCan == None:
+                continue
+            addCandidates.append(addCan)
+
+        addPossible = min(addCandidates, key = lambda x:x[2])
+
+        print "addPossible=",addPossible
+
+        sys.exit("blackBox-for i")
+
+        if not nx.is_tree(H): # если оставшийся граф - не дерево
+            continue # то ребро нельзя удалять
+
+
+
+
+
+    sys.exit("blackBox")
+    return H,[0]
+
+
 # возвращает смежное ребро с минимальным весом
 # neighbors - список соседних вершин
 # node - текущая вершина
@@ -135,6 +210,56 @@ def neighbourEdgeWithMinWeight(G,neighbors,node):
         minNeighbourEdgeW = (minNeighbourNode, node, minWeight)
 
     return minNeighbourEdgeW
+
+
+# возвращает смежное ребро с минимальным весом
+# neighbors - список соседних вершин
+# node - текущая вершина
+# учитывает, что ребро не дропаное и не принадлежит дереву
+def addCandidate(G,neighbors,node,H,drop):
+
+
+
+    minWeight = 9999 # минимальный вес
+    minNeighbourNode = -1 # первая соседняя вершина
+
+
+    # запускаем процедуру поиска минимального ребра
+    for i in xrange(0,len(neighbors)):
+
+        a = copy.deepcopy(node)
+        b = copy.deepcopy(neighbors[i])
+        if b < a:
+            a,b = b,a
+
+        e = (a,b) # конструируем ребро
+        # Если ребро есть в дереве или дропаное, пропускаем
+        if H.has_edge(*e) or (a==drop[0] and b==drop[1]):
+            continue
+
+        # Если добавить такое ребро в "дерево" то проверим на древесность
+        HH = H.copy() # сделаем копию "дерева"
+        w = G[a][b]['weight']
+        HH.add_edge(a,b,weight=w)
+        if not nx.is_tree(HH):
+            continue
+
+        if G[a][b]['weight'] < minWeight:
+            minWeight = G[a][b]['weight']
+            # соседняя врешина, образующая ребро минимального веса
+            minNeighbourNode = neighbors[i]
+
+    if minWeight > 9000:
+        return None
+
+
+    if node < minNeighbourNode:
+        minNeighbourEdgeW = (node, minNeighbourNode, minWeight)
+    else:
+        minNeighbourEdgeW = (minNeighbourNode, node, minWeight)
+
+    return minNeighbourEdgeW
+
 
 #####################################################
 

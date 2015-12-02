@@ -2,7 +2,7 @@
 
 import sys
 
-from Helpers.Utilities import constructInitialSolution, tourCost, stochasticTwoOptWithEdges, blackBox
+from Helpers.Utilities import constructInitialSolution, tourCost, stochasticTwoOptWithEdges, swapMoves
 
 # Function that returns a best candidate, sorting by cost
 def locateBestCandidate(candidates):
@@ -33,15 +33,14 @@ def isTabu(T, tabuList):
         
     return result    
 
-# Move: формирует 1 решение в окрестности начального решения best
+# Генерит кандидата в окрестности начального решения best
 def generateCandidates(best, tabuList, G):
     move, edges, result = None, None, {}
     
     # собственно move
     while move == None or isTabu(best["move"], tabuList):
         # move, edges = stochasticTwoOptWithEdges(best["move"])
-        move, edges = blackBox(best["move"],G)
-        sys.exit("generateCandidates")
+        move, edges = swapMoves(best["move"], G)
         
     candidate ={}    
     candidate["move"] = move
@@ -50,7 +49,7 @@ def generateCandidates(best, tabuList, G):
     result["candidate"] = candidate
     result["edges"] = edges
     
-    return result  # возвращает решение
+    return result
 
 # главная функция алгоритма
 # G - граф
@@ -79,11 +78,11 @@ def search(G, maxIterations, maxTabu, maxCandidates, k):
         
         # 5. Ищем кандидатов, используя табуирование (даелаем мувы)
         for index in range(0, maxCandidates):
-        	# заполняем список длиной maxCandidates решениями
+        	# заполняем список кандидатов длиной maxCandidates решениями
             candidates.append(generateCandidates(best, tabuList, G))
-            sys.exit("search")
-            
-            
+            print "candidates=",candidates
+            sys.exit("search-for index")
+
         # Locate the best candidate
         # sort the list of candidates by cost
         # since it is an  involved sort, we write a function for getting the least cost candidate

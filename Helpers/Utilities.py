@@ -139,14 +139,20 @@ def isTree(G):
     return is_connected(G)
 
 # реализация мува для k-Tree
-def blackBox(T,G):
-
+def swapMoves(T, G):
 
     k = T.number_of_edges()
 
+    bestSwapCandidates=[]
+    # цикл по всем ребрам дерева
     for i in xrange(0, k):
+
+
+
         H = T.copy() # сделаем копию решения
-        e = H.edges(data='weight')[i] # берем ребро, которое хотим удалить
+
+        # Нам надо удалить ребро
+        e = H.edges(data='weight')[i]
 
         extNode = -1
         # если одна из вершин ребра внешняя - запомним ее
@@ -160,33 +166,52 @@ def blackBox(T,G):
         if extNode != -1: # если одна из вершин ребра внешняя
             H.remove_node(extNode) # удаляем ее
 
+
+
         # теперь нужно добавить одно ребро из G
-        addCandidates = []
+        applicants4addList = []
         for node in H.nodes(): # цикл по нодам оставшегося графа
             nodeNeighbors = G.neighbors(node) # вершины смежные к node
 
             # ищем ребро с минимальными весом для всех смежных узлов
-            addCan = addCandidate(G,nodeNeighbors,node,H,drop)
-            if addCan == None:
+            applicant4add = getApplicantForAdd(G, nodeNeighbors, node, H, drop)
+            if applicant4add == None:
                 continue
-            addCandidates.append(addCan)
+            applicants4addList.append(applicant4add)
 
-        addPossible = min(addCandidates, key = lambda x:x[2])
+        if not applicants4addList:
+            # список кандидатов на добавление пуст
+            # т.к. потеряна древестность
+            # то ребро нельзя удалять
+            continue
 
-        print "addPossible=",addPossible
 
-        sys.exit("blackBox-for i")
 
+        # получаем ребро для добавления в "дерево" из G
+        add = min(applicants4addList, key = lambda x:x[2])
+        # и добавляем его в дерево
+        H.add_edge(add[0],add[1],weight=add[2])
+
+        # хотя уже была такая проверка в getApplicantForAdd()
+        # сделаем её еще разок на всякий случай
         if not nx.is_tree(H): # если оставшийся граф - не дерево
             continue # то ребро нельзя удалять
 
 
 
+        bestSwapCandidate = (add,drop)
+        bestSwapCandidates.append(tuple((bestSwapCandidate,tourCost(H))))
 
+    bestSwapWithCost = min(bestSwapCandidates, key = lambda x:x[1])
+    bestSwap = bestSwapWithCost[0]
 
-    sys.exit("blackBox")
-    return H,[0]
+    H = T.copy() # сделаем копию решения
+    drop = bestSwap[1]
+    H.remove_edge(*drop)  # удаляем ребро
+    add = bestSwap[0]
+    H.add_edge(add[0],add[1],weight=add[2]) # и добавляем
 
+    return H, bestSwap
 
 # возвращает смежное ребро с минимальным весом
 # neighbors - список соседних вершин
@@ -216,9 +241,7 @@ def neighbourEdgeWithMinWeight(G,neighbors,node):
 # neighbors - список соседних вершин
 # node - текущая вершина
 # учитывает, что ребро не дропаное и не принадлежит дереву
-def addCandidate(G,neighbors,node,H,drop):
-
-
+def getApplicantForAdd(G, neighbors, node, H, drop):
 
     minWeight = 9999 # минимальный вес
     minNeighbourNode = -1 # первая соседняя вершина
